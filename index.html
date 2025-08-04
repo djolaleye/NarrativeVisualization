@@ -59,10 +59,10 @@
         
         const totalByYear = d3.nest()
             .key(function(d) {return d.year})
-            .rollup(values => d3.sum(values, d => d.total))
+            .rollup(function(values) {return d3.sum(values, function(d) {return  d.total})})
             .entries(data)
-            .map(d => ({ year: +d.key, total: d.value }))
-            .sort((a,b)=>a.year - b.year);;
+            .map(function(d) {return ({ year: +d.key, total: d.value })})
+            .sort(function(a,b){return a.year - b.year});;
     
         
         const state = {
@@ -77,13 +77,6 @@
     
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
-
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 430)");
-        const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
-        const path = svg.append("path")
-          .attr("fill", "none")
-          .attr("stroke", "#1E90FF")
-          .attr("stroke-width", 3);
         
         
         const scenes = [
@@ -96,44 +89,47 @@
               d3.select("#slide-title").text(scenes[0].title);
               d3.select("#slide-subtitle").text(scenes[0].subtitle);
               d3.select("#annotation").text("A steady increase in crime is seen nationally.");
-    
+
+              svg.selectAll("*").remove();
+              
               // Prepare data
               const pre2020 = totalByYear.filter(function(d) {return d.year <= 2020})
               xScale.domain(d3.extent(pre2020, function(d) {return d.year}));
               yScale.domain([0, d3.max(pre2020, function(d) {return d.total}) * 1.05]);
     
-    
+              const xAxisGroup = svg.append("g").attr("transform", "translate(0, 430)").call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+              const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)").call(d3.axisLeft(yScale));;
+            
               // Line generator
               const line = d3.line()
                 .x(function(d) {return xScale(d.year)})
                 .y(function(d) {return yScale(d.total)})
                 .curve(d3.curveMonotoneX);
-    
-              // Transitions
-              xAxisGroup.transition().duration(1000)
-                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
-              
-              yAxisGroup.transition().duration(1000)
-                .call(d3.axisLeft(yScale));
-              
-              path.datum(pre2020)
-                .transition().duration(1000)
+
+              svg.append("path")
+                .datum(pre2020)
+                .attr("fill", "none")
+                .attr("stroke", "#1E90FF")
+                .attr("stroke-width", 3)
                 .attr("d", line);
             }
           },
+          
           {
             name: "National Trend Post Covid",
             title: "Crime Trends in Bangladesh (2010–2025)",
             subtitle: "Total cases by year",
             showYear: false,
             render: () => {
-              d3.select("#slide-title").text(scenes[0].title);
-              d3.select("#slide-subtitle").text(scenes[0].subtitle);
+              d3.select("#slide-title").text(scenes[1].title);
+              d3.select("#slide-subtitle").text(scenes[1].subtitle);
               d3.select("#annotation").text("Crime has begun to steadily decrease after the pandemic.");
-    
+
+              svg.selectAll("*").remove();
+              
               // Prepare data
               const post2020 = totalByYear.filter(function(d) {return d.year > 2020})
-              xScale.domain(d3.extent(ppst2020, function(d) {return d.year}));
+              xScale.domain(d3.extent(post2020, function(d) {return d.year}));
               yScale.domain([0, d3.max(post2020, function(d) {return d.total}) * 1.05]);
     
     
@@ -143,16 +139,95 @@
                 .y(function(d) {return yScale(d.total)})
                 .curve(d3.curveMonotoneX);
     
-              // Transitions
-              xAxisGroup.transition().duration(1000)
-                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
-              
-              yAxisGroup.transition().duration(1000)
-                .call(d3.axisLeft(yScale));
-              
-              path.datum(post2020)
-                .transition().duration(1000)
+              const xAxisGroup = svg.append("g").attr("transform", "translate(0, 430)").call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+              const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)").call(d3.axisLeft(yScale));;
+            
+              // Line generator
+              const line = d3.line()
+                .x(function(d) {return xScale(d.year)})
+                .y(function(d) {return yScale(d.total)})
+                .curve(d3.curveMonotoneX);
+
+              svg.append("path")
+                .datum(post2020)
+                .attr("fill", "none")
+                .attr("stroke", "#1E90FF")
+                .attr("stroke-width", 3)
                 .attr("d", line);
+            }
+          },
+
+          {
+            name: "Category Breakdown",
+            title: "Category Breakdown",
+            subtitle: "Distribution of cases by type for selected year",
+            showYear: true,
+            render: () => {
+              d3.select("#slide-title").text(scenes[2].title);
+              d3.select("#slide-subtitle").text(scenes[2].subtitle);
+              d3.select("#annotation").text(`Each crime category totals for the year ${state.year}`);
+    
+              // Prepare data
+              const yearData = data.filter(function(d) { return d.year === state.year});
+
+    
+              const totals = {
+                 dacoity: d3.sum(yearData, function(d) {return  d.dacoity}),
+                 robbery: d3.sum(yearData, function(d) {return  d.robbery}),
+                 murder: d3.sum(yearData, function(d) {return  d.murder}),
+                 speedy: d3.sum(yearData, function(d) {return  d.speedy}),
+                 riot: d3.sum(yearData, function(d) {return  d.riot}),
+                 woman_child: d3.sum(yearData, function(d) {return  d.woman_child}),
+                 kidnapping: d3.sum(yearData, function(d) {return  d.kidnapping}),
+                 police_assault: d3.sum(yearData, function(d) {return  d.police_assault}),
+                 burglary: d3.sum(yearData, function(d) {return  d.burglary}),
+                 theft: d3.sum(yearData, function(d) {return  d.theft}),
+                 other: d3.sum(yearData, function(d) {return  d.other}),
+                 arms: d3.sum(yearData, function(d) {return  d.arms}),
+                 explosive: d3.sum(yearData, function(d) {return  d.explosive}),
+                 narcotics: d3.sum(yearData, function(d) {return  d.narcotics}),
+                 smuggling: d3.sum(yearData, function(d) {return  d.smuggling})
+               };
+
+              const categories = Object.entries(totals).map(([key, value]) => ({
+                category: key.replace(/_/g, ' ').toUpperCase(),
+                value}));
+
+              svg.selectAll("*").remove();
+
+              const x = d3.scaleBand()
+                .domain(categories.map(function(d) {return d.category}))
+                .range([margin.left, width + margin.left])
+                .padding(0.1);
+              
+              const y = d3.scaleLinear()
+                .domain([0, d3.max(categories, function(d) {return d.value}) * 1.1])
+                .range([height + margin.top, margin.top]);
+    
+              // Axes
+              svg.append("g")
+                  .attr("transform", "translate(0, 430)")
+                  .call(d3.axisBottom(x))
+                  .selectAll("text")
+                  .attr("transform", "rotate(-45)")
+                  .style("text-anchor", "end")
+                  .style("font-size", "10px");
+
+              svg.append("g")
+                  .attr("transform", "translate(60, 0)")
+                  .call(d3.axisLeft(y));
+              
+              
+              svg.selectAll(".bar")
+                  .data(categories)
+                  .enter()
+                  .append("rect")
+                  .attr("class", "bar")
+                  .attr("x", function(d) {return x(d.category)})
+                  .attr("y", function(d) {return y(d.value)})
+                  .attr("width", x.bandwidth())
+                  .attr("height", function(d) {return y(0) - y(d.value)})
+                  .attr("fill", "#1E90FF");
             }
           }
         ];
@@ -171,8 +246,8 @@
           }
 
           // Button Visibility
-          d3.select("#back-btn").style("display", state.sceneIndex=0 ? null : "none");
-          d3.select("#next-btn").style("display", state.sceneIndex=scenes.length-1 ? null : "none");
+          d3.select("#back-btn").style("display", state.sceneIndex==0 ? null : "none");
+          d3.select("#next-btn").style("display", state.sceneIndex==scenes.length-1 ? null : "none");
           
           scenes[state.sceneIndex].render();
         }
