@@ -72,10 +72,10 @@
           year: 2010
         };
         
-    
-        const width = +svg.attr("width") - 50;
-        const height = +svg.attr("height") - 50;
+
         const margin = { top: 40, right: 20, bottom: 60, left: 70 };
+        const width = 700 - margin.left - margin.right;
+        const height = 700 - margin.top - margin.bottom;
     
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
