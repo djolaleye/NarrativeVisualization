@@ -8,7 +8,7 @@
     </style>
   </head>
   <body onload='init()'>
-    <h1>Bangladesh Crime Narrative Vis</h1>
+    <h1 style="text-align: center;">Bangladesh Crime Narrative Vis</h1>
     <div class="slide-header">
       <div class="slide-title" id="slide-title"></div>
       <div class="subtitle" id="slide-subtitle"></div>
@@ -77,7 +77,7 @@
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
 
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 460)");
+        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 470)");
         const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
 
         const lineGroup = svg.append("g").attr("class", "line-group");
@@ -102,14 +102,14 @@
               const annotationData = [
                 {
                   note: {
-                    label: "A steady increase in crime is seen nationally.",
-                    title: "Trend Note",
+                    label: "A steady increase in crime is seen nationally over the decade.",
+                    title: "Trend",
                     align: "middle",
                     wrap: 200
                   },
                   data: { year: 2015, total: totalByYear.find(function(d) {return d.year === 2015})?.total || 0 },
-                  dx: 30,
-                  dy: -50,
+                  dx: 40,
+                  dy: -48,
                   color: "#003366",  // dark blue
                   connector: { end: "arrow" }
                 }
@@ -167,7 +167,36 @@
             render: () => {
               d3.select("#slide-title").text(scenes[1].title);
               d3.select("#slide-subtitle").text(scenes[1].subtitle);
-              d3.select("#annotation").text("Crime has begun to steadily decrease after the pandemic.");
+              svg.select(".annotation-group").remove();
+              
+              const annotationData = [
+                {
+                  note: {
+                    label: "Crime has consistently been on a decline after the pandemic",
+                    title: "Post-2020 Decline",
+                    align: "middle",
+                    wrap: 220
+                  },
+                  data: { year: 2022, total: totalByYear.find(function(d) {return d.year === 2022})?.total || 0 },
+                  dx: 40,
+                  dy: -60,
+                  color: "#003366",  // dark blue
+                  connector: { end: "arrow" }
+                }
+              ];
+              
+              const makeAnnotations = d3.annotation()
+                .type(d3.annotationLabel)
+                .accessors({
+                  x: function(d) {return xScale(d.year)},
+                  y: function(d) {return yScale(d.total)}
+                })
+                .annotations(annotationData);
+              
+              svg.append("g")
+                .attr("class", "annotation-group")
+                .call(makeAnnotations);
+
 
               barGroup.style("display", "none");
               lineGroup.style("display", null).selectAll("*").remove();
