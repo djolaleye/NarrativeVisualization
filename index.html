@@ -4,13 +4,14 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://unpkg.com/d3-svg-annotation@2.5.1/d3-annotation.min.js"></script>
     <style>
-      .subtitle { color: #555; }
+      .title { color: #1E90FF }
+      .subtitle { color: #555; font-size: 12px; }
       .annotation-note-title { font-size: 13px; text-anchor: middle; }
       .annotation-note-label { font-size: 12px; text-anchor: middle; }
     </style>
   </head>
   <body onload='init()'>
-    <h1 style="text-align: center;">Bangladesh Crime Narrative Vis</h1>
+    <h1 style="text-align: center; color: #003366;">Bangladesh Crime Narrative Vis</h1>
     <div class="slide-header">
       <div class="slide-title" id="slide-title"></div>
       <div class="subtitle" id="slide-subtitle"></div>
@@ -71,6 +72,7 @@
           year: 2010,
           focusCategory: ""
         };
+        
     
         const width = +svg.attr("width") - 50;
         const height = +svg.attr("height") - 50;
@@ -79,7 +81,7 @@
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
 
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 690)");
+        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 640)");
         const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
 
         const lineGroup = svg.append("g").attr("class", "line-group");
