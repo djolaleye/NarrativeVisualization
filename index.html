@@ -69,8 +69,7 @@
     
         const state = {
           sceneIndex: 0,
-          year: 2010,
-          focusCategory: ""
+          year: 2010
         };
         
     
@@ -81,7 +80,7 @@
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
 
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 640)");
+        const xAxisGroup = svg.append("g").attr("transform", `translate(0, ${margin.top + height})`);
         const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
 
         const lineGroup = svg.append("g").attr("class", "line-group");
