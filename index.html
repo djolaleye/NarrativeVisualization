@@ -315,11 +315,6 @@
 
               const annotationGroup = svg.append("g")
                 .attr("class", "annotation-group");
-
-              annotationGroup.append("rect")
-                .attr("x", 0).attr("y", 0)
-                .attr("width", 100).attr("height", 100)
-                .attr("fill", "red").attr("opacity", 0.3);
               
               // Update annotation on hover
               function updateAnnotation(categoryData, x, y) {
@@ -349,7 +344,6 @@
                 })
                 .annotations(annotationData);
                 
-                console.log("Adding annotation at", categoryData.category, categoryData.value);
                 annotationGroup.call(hoverAnnotation);
               }
             }
