@@ -5,7 +5,6 @@
     <script src="https://unpkg.com/d3-svg-annotation@2.5.1/d3-annotation.min.js"></script>
     <style>
       .subtitle { color: #555; }
-      #annotation { margin: 6px 0; font-weight: 500;  color: #FFA500}
     </style>
   </head>
   <body onload='init()'>
@@ -27,7 +26,7 @@
       <span id="progress"></span>
     </div>
 
-    <div id="annotation"></div>
+    
     <svg width="500" height="500"></svg>
     
     <script>
@@ -78,7 +77,7 @@
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
 
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 430)");
+        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 500)");
         const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
 
         const lineGroup = svg.append("g").attr("class", "line-group");
