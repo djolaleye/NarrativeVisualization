@@ -269,7 +269,7 @@
                };
 
               const categories = Object.entries(totals).map(([key, value]) => ({
-                category: key,//.replace(/_/g, ' ').toUpperCase(),
+                category: key.replace(/_/g, ' ').toUpperCase(),
                 value}));
 
 
