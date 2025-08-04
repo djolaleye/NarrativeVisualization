@@ -77,7 +77,7 @@
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
 
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 500)");
+        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 460)");
         const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
 
         const lineGroup = svg.append("g").attr("class", "line-group");
@@ -177,8 +177,8 @@
               
               // Prepare data
               //const post2020 = totalByYear.filter(function(d) {return d.year > 2020})
-              xScale.domain(d3.extent(data, function(d) {return d.year}));
-              yScale.domain([0, d3.max(data, function(d) {return d.total}) * 1.05]);
+              xScale.domain(d3.extent(totalByYear, function(d) {return d.year}));
+              yScale.domain([0, d3.max(totalByYear, function(d) {return d.total}) * 1.05]);
     
     
               // Line generator
