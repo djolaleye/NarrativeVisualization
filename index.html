@@ -96,7 +96,6 @@
               d3.select("#slide-subtitle").text(scenes[0].subtitle);
               d3.select("#annotation").text("A steady increase in crime is seen nationally.");
 
-              svg.selectAll("*").remove();
               
               // Prepare data
               const pre2020 = totalByYear.filter(function(d) {return d.year <= 2020})
