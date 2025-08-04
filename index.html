@@ -2,6 +2,7 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/d3-svg-annotation@2.5.1/d3-annotation.min.js"></script>
     <style>
       .subtitle { color: #555; }
       #annotation { margin: 6px 0; font-weight: 500;  color: #FFA500}
@@ -92,9 +93,41 @@
             subtitle: "Total cases by year",
             showYear: false,
             render: () => {
+              // Text
               d3.select("#slide-title").text(scenes[0].title);
-              d3.select("#slide-subtitle").text(scenes[0].subtitle);
-              d3.select("#annotation").text("A steady increase in crime is seen nationally.");
+              d3.select("#slide-subtitle").text(scenes[0].subtitle)
+              d3.select("#annotation").text("");
+    
+              svg.select(".annotation-group").remove();
+              
+              const annotationData = [
+                {
+                  note: {
+                    label: "A steady increase in crime is seen nationally.",
+                    title: "Trend Note",
+                    align: "middle",
+                    wrap: 200
+                  },
+                  data: { year: 2015, total: totalByYear.find(function(d) {return d.year === 2015})?.total || 0 },
+                  dx: 30,
+                  dy: -50,
+                  color: "#003366",  // dark blue
+                  connector: { end: "arrow" }
+                }
+              ];
+              
+              const makeAnnotations = d3.annotation()
+                .type(d3.annotationLabel)
+                .accessors({
+                  x: function(d) {return xScale(d.year)},
+                  y: function(d) {return yScale(d.total)}
+                })
+                .annotations(annotationData);
+              
+              svg.append("g")
+                .attr("class", "annotation-group")
+                .call(makeAnnotations);
+
 
               
               // Prepare data
@@ -108,7 +141,7 @@
               xAxisGroup.transition().duration(1000).call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
               yAxisGroup.transition().duration(1000).call(d3.axisLeft(yScale));;
             
-              // Line generator
+              // Line chart
               const line = d3.line()
                 .x(function(d) {return xScale(d.year)})
                 .y(function(d) {return yScale(d.total)})
@@ -144,9 +177,9 @@
               yAxisGroup.transition().duration(1000).call(d3.axisLeft(yScale));;
               
               // Prepare data
-              const post2020 = totalByYear.filter(function(d) {return d.year > 2020})
-              xScale.domain(d3.extent(post2020, function(d) {return d.year}));
-              yScale.domain([0, d3.max(post2020, function(d) {return d.total}) * 1.05]);
+              //const post2020 = totalByYear.filter(function(d) {return d.year > 2020})
+              xScale.domain(d3.extent(data, function(d) {return d.year}));
+              yScale.domain([0, d3.max(data, function(d) {return d.total}) * 1.05]);
     
     
               // Line generator
@@ -157,7 +190,7 @@
     
 
               lineGroup.append("path")
-                .datum(post2020)
+                .datum(data)
                 .attr("fill", "none")
                 .attr("stroke", "#1E90FF")
                 .attr("stroke-width", 3)
