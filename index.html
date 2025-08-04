@@ -5,6 +5,8 @@
     <script src="https://unpkg.com/d3-svg-annotation@2.5.1/d3-annotation.min.js"></script>
     <style>
       .subtitle { color: #555; }
+      .annotation-note-title { font-size: 13px; text-anchor: middle; }
+      .annotation-note-label { font-size: 12px; text-anchor: middle; }
     </style>
   </head>
   <body onload='init()'>
@@ -27,7 +29,7 @@
     </div>
 
     
-    <svg width="500" height="500"></svg>
+    <svg width="700" height="700"></svg>
     
     <script>
       async function init() {
@@ -72,12 +74,12 @@
     
         const width = +svg.attr("width") - 50;
         const height = +svg.attr("height") - 50;
-        const margin = { top: 20, right: 20, bottom: 40, left: 60 };
+        const margin = { top: 40, right: 20, bottom: 60, left: 70 };
     
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
 
-        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 470)");
+        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 690)");
         const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
 
         const lineGroup = svg.append("g").attr("class", "line-group");
@@ -297,7 +299,7 @@
                       label: `Cases: ${categoryData.value}`,
                       title: categoryData.category,
                       align: "middle",
-                      wrap: 180
+                      wrap: 200
                     },
                     data: categoryData,
                     dx: 20,
