@@ -2,7 +2,10 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <style> </style>
+    <style>
+      .subtitle { color: #555; }
+      #annotation { margin: 6px 0; font-weight: 500;  color: #FFA500}
+    </style>
   </head>
   <body onload='init()'>
     <h1>Bangladesh Crime Narrative Vis</h1>
@@ -23,6 +26,7 @@
       <span id="progress"></span>
     </div>
 
+    <div id="annotation"></div>
     <svg width="500" height="500"></svg>
     
     <script>
@@ -73,33 +77,31 @@
     
         const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
         const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
-    
+
+        const xAxisGroup = svg.append("g").attr("transform", "translate(0, 430)");
+        const yAxisGroup = svg.append("g").attr("transform", "translate(60, 0)");
+        const path = svg.append("path")
+          .attr("fill", "none")
+          .attr("stroke", "#1E90FF")
+          .attr("stroke-width", 3);
         
         
         const scenes = [
           {
             name: "National Trend",
-            title: "Crime Trends in Bangladesh (2010–2025)",
+            title: "Crime Trends in Bangladesh (2010–2020)",
             subtitle: "Total cases by year",
+            showYear: false,
             render: () => {
               d3.select("#slide-title").text(scenes[0].title);
               d3.select("#slide-subtitle").text(scenes[0].subtitle);
-              d3.select("#annotation").text("Woman & Child Repression and Narcotics are the most frequent crimes.");
+              d3.select("#annotation").text("A steady increase in crime is seen nationally.");
     
               // Prepare data
-              xScale.domain(d3.extent(totalByYear, function(d) {return d.year}));
-              yScale.domain([0, d3.max(totalByYear, function(d) {return d.total}) * 1.05]);
+              const pre2020 = totalByYear.filter(function(d) {return d.year <= 2020})
+              xScale.domain(d3.extent(pre2020, function(d) {return d.year}));
+              yScale.domain([0, d3.max(pre2020, function(d) {return d.total}) * 1.05]);
     
-              svg.selectAll("*").remove();
-    
-              // Axes
-              svg.append("g")
-                .attr("transform", "translate(0, 430)")
-                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
-              
-              svg.append("g")
-                .attr("transform", "translate(60, 0)")
-                .call(d3.axisLeft(yScale));
     
               // Line generator
               const line = d3.line()
@@ -107,11 +109,49 @@
                 .y(function(d) {return yScale(d.total)})
                 .curve(d3.curveMonotoneX);
     
-              svg.append("path")
-                .datum(totalByYear)
-                .attr("fill", "none")
-                .attr("stroke", "#444")
-                .attr("stroke-width", 2)
+              // Transitions
+              xAxisGroup.transition().duration(1000)
+                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+              
+              yAxisGroup.transition().duration(1000)
+                .call(d3.axisLeft(yScale));
+              
+              path.datum(pre2020)
+                .transition().duration(1000)
+                .attr("d", line);
+            }
+          },
+          {
+            name: "National Trend Post Covid",
+            title: "Crime Trends in Bangladesh (2010–2025)",
+            subtitle: "Total cases by year",
+            showYear: false,
+            render: () => {
+              d3.select("#slide-title").text(scenes[0].title);
+              d3.select("#slide-subtitle").text(scenes[0].subtitle);
+              d3.select("#annotation").text("Crime has begun to steadily decrease after the pandemic.");
+    
+              // Prepare data
+              const post2020 = totalByYear.filter(function(d) {return d.year > 2020})
+              xScale.domain(d3.extent(ppst2020, function(d) {return d.year}));
+              yScale.domain([0, d3.max(post2020, function(d) {return d.total}) * 1.05]);
+    
+    
+              // Line generator
+              const line = d3.line()
+                .x(function(d) {return xScale(d.year)})
+                .y(function(d) {return yScale(d.total)})
+                .curve(d3.curveMonotoneX);
+    
+              // Transitions
+              xAxisGroup.transition().duration(1000)
+                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+              
+              yAxisGroup.transition().duration(1000)
+                .call(d3.axisLeft(yScale));
+              
+              path.datum(post2020)
+                .transition().duration(1000)
                 .attr("d", line);
             }
           }
@@ -122,6 +162,18 @@
         function renderScene() {
           state.sceneIndex = Math.max(0, Math.min(scenes.length - 1, state.sceneIndex));
           d3.select("#progress").text(`${state.sceneIndex + 1} / ${scenes.length}`);
+
+          
+          // Year Slider visibility
+          d3.select("#controls").style("display", scenes[state.sceneIndex].showYear ? null : "none");
+          if(scenes[state.sceneIndex].showYear){
+            d3.select("#year-label").text(state.year);
+          }
+
+          // Button Visibility
+          d3.select("#back-btn").style("display", state.sceneIndex=0 ? null : "none");
+          d3.select("#next-btn").style("display", state.sceneIndex=scenes.length-1 ? null : "none");
+          
           scenes[state.sceneIndex].render();
         }
     
@@ -139,13 +191,13 @@
         d3.select("#year-slider").on("input", function() {
           state.year = +this.value;
           d3.select("#year-label").text(state.year);
-          //if (scenes[state.sceneIndex].name === "Category Breakdown") {
-            //renderScene();
-          //}
+          
+          if (scenes[state.sceneIndex].name === "Category Breakdown") {
+            renderScene();
+          }
         });
 
-        console.log("Loaded rows:", data.length, data.slice(0,3));
-        console.log("Aggregated totalByYear:", totalByYear);
+        
         renderScene();
     
         
