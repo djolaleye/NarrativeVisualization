@@ -218,7 +218,7 @@
     
 
               lineGroup.append("path")
-                .datum(data)
+                .datum(totalByYear)
                 .attr("fill", "none")
                 .attr("stroke", "#1E90FF")
                 .attr("stroke-width", 3)
@@ -235,10 +235,47 @@
             subtitle: "Distribution of cases by type for selected year",
             showYear: true,
             render: () => {
+              // Text
               d3.select("#slide-title").text(scenes[2].title);
               d3.select("#slide-subtitle").text(scenes[2].subtitle);
-              d3.select("#annotation").text(`Each crime category totals for the year ${state.year}`);
+              svg.select(".annotation-group").remove();
 
+              const annotationGroup = svg.append("g")
+                .attr("class", "annotation-group");
+              
+              // Update annotation on hover
+              function updateAnnotation(categoryData) {
+                annotationGroup.selectAll("*").remove();
+              
+                const annotationData = [
+                  {
+                    note: {
+                      label: `Cases: ${categoryData.value}`,
+                      title: categoryData.category,
+                      align: "middle",
+                      wrap: 180
+                    },
+                    data: categoryData,
+                    dx: 20,
+                    dy: -40,
+                    color: "#003366",
+                    connector: { end: "arrow" }
+                  }
+                ];
+              
+                const hoverAnnotation = d3.annotation()
+                .type(d3.annotationLabel)
+                .accessors({
+                  x: function(d) {return x(d.category) + x.bandwidth() / 2},
+                  y: function(d) {return y(d.value)}
+                })
+                .annotations(annotationData);
+                
+              
+                annotationGroup.call(hoverAnnotation);
+              }
+
+              
               lineGroup.style("display", "none");
               barGroup.style("display", null).selectAll("*").remove();
               
@@ -292,9 +329,16 @@
                   .attr("y", function(d) {return y(d.value)})
                   .attr("width", x.bandwidth())
                   .attr("height", function(d) {return y(0) - y(d.value)})
-                  .attr("fill", "#1E90FF");
+                  .attr("fill", "#1E90FF")
+                  .on("mouseover", function(event, d) {
+                    updateAnnotation(d); /
+                    d3.select(this).attr("fill", "#003366");
+                    })
+                    .on("mouseout", function(event, d) {
+                      annotationGroup.selectAll("*").remove(); 
+                      d3.select(this).attr("fill", "#1E90FF");
+                    });
             }
-          }
         ];
     
     
