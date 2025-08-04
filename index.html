@@ -3,20 +3,45 @@
 <style> </style>
 
 <html>
+  <h1>Bangladesh Crime Narrative Vis</h1>
   <body onload='init()'>
     
   </body>
 </html>
 
-<svg>
-  
+<svg width="500" height="500">
 </svg>
 
 <script>
   async function init() {
-    const data = await d3.csv("");
+    const data = await d3.csv("BD_Crime.csv", d = function(d) { 
+      return { 
+        unit: d["Names of Unit"].trim(),
+        year: +d["Year"],
+        dacoity: +d["Dacoity"],
+        robbery: +d["Robbery"],
+        murder: +d[" Murder"],
+        speedy: +d[" Speedy Trial"],
+        riot: +d[" Riot"],
+        woman_child: +d[" Woman & Child Repression"],
+        kidnapping: +d[" Kidnapping"],
+        police_assault: +d[" Police Assault"],
+        burglary: +d[" Burglary"],
+        theft: +d[" Theft"],
+        other: +d[" Other Cases"],
+        arms: +d["Arms Act"],
+        explosive: +d[" Explosive Act"],
+        narcotics: +d[" Narcotics"],
+        smuggling: +d["Smuggling"],
+        total: +d["Total Cases"]
+    }};
 
-    d3.select
+    d3.select('svg')
+      .selectAll('p')
+    .data(data)
+    .enter()
+    .append('p')
+    
   }
 </script>
   
