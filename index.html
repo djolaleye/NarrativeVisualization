@@ -1,12 +1,11 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <script src="http://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
     <style> </style>
-    <h1>Bangladesh Crime Narrative Vis</h1>
   </head>
   <body onload='init()'>
-    
+    <h1>Bangladesh Crime Narrative Vis</h1>
     <div class="slide-header">
       <div class="slide-title" id="slide-title"></div>
       <div class="subtitle" id="slide-subtitle"></div>
@@ -26,132 +25,132 @@
 
     <svg width="500" height="500"></svg>
     
+    <script>
+      async function init() {
+        // Load & Clean
+        const data = await d3.csv("BD_Crime.csv", function(d) { 
+          return { 
+            unit: d["Names of Unit"].trim(),
+            year: +d["Year"],
+            dacoity: +d["Dacoity"],
+            robbery: +d["Robbery"],
+            murder: +d[" Murder"],
+            speedy: +d[" Speedy Trial"],
+            riot: +d[" Riot"],
+            woman_child: +d[" Woman & Child Repression"],
+            kidnapping: +d[" Kidnapping"],
+            police_assault: +d[" Police Assault"],
+            burglary: +d[" Burglary"],
+            theft: +d[" Theft"],
+            other: +d[" Other Cases"],
+            arms: +d["Arms Act"],
+            explosive: +d[" Explosive Act"],
+            narcotics: +d[" Narcotics"],
+            smuggling: +d["Smuggling"],
+            total: +d["Total Cases"]
+          };
+        });
+        
+        const svg = d3.select("svg");
+        
+        const totalByYear = d3.nest()
+            .key(function(d) {return d.year})
+            .rollup(values => d3.sum(values, d => d.total))
+            .entries(data)
+            .map(d => ({ year: +d.key, total: d.value }))
+            .sort((a,b)=>a.year - b.year);;
+    
+        
+        const state = {
+          sceneIndex: 0,
+          year: 2010,
+          //focusCategory: "woman_child" // can be changed per scene
+        };
+    
+        const width = +svg.attr("width") - 50;
+        const height = +svg.attr("height") - 50;
+        const margin = { top: 20, right: 20, bottom: 40, left: 60 };
+    
+        const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
+        const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
+    
+        
+        
+        const scenes = [
+          {
+            name: "National Trend",
+            title: "Crime Trends in Bangladesh (2010–2025)",
+            subtitle: "Total cases by year",
+            render: () => {
+              d3.select("#slide-title").text(scenes[0].title);
+              d3.select("#slide-subtitle").text(scenes[0].subtitle);
+              d3.select("#annotation").text("Woman & Child Repression and Narcotics are the most frequent crimes.");
+    
+              // Prepare data
+              xScale.domain(d3.extent(totalByYear, function(d) {return d.year}));
+              yScale.domain([0, d3.max(totalByYear, function(d) {return d.total}) * 1.05]);
+    
+              svg.selectAll("*").remove();
+    
+              // Axes
+              svg.append("g")
+                .attr("transform", "translate(0, 430)")
+                .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
+              
+              svg.append("g")
+                .attr("transform", "translate(60, 0)")
+                .call(d3.axisLeft(yScale));
+    
+              // Line generator
+              const line = d3.line()
+                .x(function(d) {return xScale(d.year)})
+                .y(function(d) {return yScale(d.total)})
+                .curve(d3.curveMonotoneX);
+    
+              svg.append("path")
+                .datum(totalByYear)
+                .attr("fill", "none")
+                .attr("stroke", "#444")
+                .attr("stroke-width", 2)
+                .attr("d", line);
+            }
+          }
+        ];
+    
+    
+        // Visualize the current scene
+        function renderScene() {
+          state.sceneIndex = Math.max(0, Math.min(scenes.length - 1, state.sceneIndex));
+          d3.select("#progress").text(`${state.sceneIndex + 1} / ${scenes.length}`);
+          scenes[state.sceneIndex].render();
+        }
+    
+    
+        // Triggers
+        d3.select("#next-btn").on("click", () => {
+          state.sceneIndex += 1;
+          renderScene();
+        });
+        d3.select("#back-btn").on("click", () => {
+          state.sceneIndex -= 1;
+          renderScene();
+        });
+    
+        d3.select("#year-slider").on("input", function() {
+          state.year = +this.value;
+          d3.select("#year-label").text(state.year);
+          //if (scenes[state.sceneIndex].name === "Category Breakdown") {
+            //renderScene();
+          //}
+        });
+    
+        renderScene();
+    
+        
+      }
+    </script>
   </body>
 </html>
 
 
-<script>
-  async function init() {
-    // Load & Clean
-    const data = await d3.csv("BD_Crime.csv", function(d) { 
-      return { 
-        unit: d["Names of Unit"].trim(),
-        year: +d["Year"],
-        dacoity: +d["Dacoity"],
-        robbery: +d["Robbery"],
-        murder: +d[" Murder"],
-        speedy: +d[" Speedy Trial"],
-        riot: +d[" Riot"],
-        woman_child: +d[" Woman & Child Repression"],
-        kidnapping: +d[" Kidnapping"],
-        police_assault: +d[" Police Assault"],
-        burglary: +d[" Burglary"],
-        theft: +d[" Theft"],
-        other: +d[" Other Cases"],
-        arms: +d["Arms Act"],
-        explosive: +d[" Explosive Act"],
-        narcotics: +d[" Narcotics"],
-        smuggling: +d["Smuggling"],
-        total: +d["Total Cases"]
-      };
-    });
-    
-    const svg = d3.select("svg");
-    
-    const totalByYear = d3.nest()
-        .key(function(d) {return d.year})
-        .rollup(values => d3.sum(values, d => d.total))
-        .entries(data)
-        .map(d => ({ year: +d.key, total: d.value }))
-        .sort((a,b)=>a.year - b.year);;
-
-    
-    const state = {
-      sceneIndex: 0,
-      year: 2010,
-      //focusCategory: "woman_child" // can be changed per scene
-    };
-
-    const width = +svg.attr("width") - 50;
-    const height = +svg.attr("height") - 50;
-    const margin = { top: 20, right: 20, bottom: 40, left: 60 };
-
-    const xScale = d3.scaleLinear().range([margin.left, margin.left + width]);
-    const yScale = d3.scaleLinear().range([margin.top + height, margin.top]);
-
-    
-    
-    const scenes = [
-      {
-        name: "National Trend",
-        title: "Crime Trends in Bangladesh (2010–2025)",
-        subtitle: "Total cases by year",
-        render: () => {
-          d3.select("#slide-title").text(scenes[0].title);
-          d3.select("#slide-subtitle").text(scenes[0].subtitle);
-          d3.select("#annotation").text("Woman & Child Repression and Narcotics are the most frequent crimes.");
-
-          // Prepare data
-          xScale.domain(d3.extent(totalByYear, function(d) {return d.year}));
-          yScale.domain([0, d3.max(totalByYear, function(d) {return d.total}) * 1.05]);
-
-          svg.selectAll("*").remove();
-
-          // Axes
-          svg.append("g")
-            .attr("transform", "translate(0, 430)")
-            .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
-          
-          svg.append("g")
-            .attr("transform", "translate(60, 0)")
-            .call(d3.axisLeft(yScale));
-
-          // Line generator
-          const line = d3.line()
-            .x(function(d) {return xScale(d.year)})
-            .y(function(d) {return yScale(d.total)})
-            .curve(d3.curveMonotoneX);
-
-          svg.append("path")
-            .datum(totalByYear)
-            .attr("fill", "none")
-            .attr("stroke", "#444")
-            .attr("stroke-width", 2)
-            .attr("d", line);
-        }
-      }
-    ];
-
-
-    // Visualize the current scene
-    function renderScene() {
-      state.sceneIndex = Math.max(0, Math.min(scenes.length - 1, state.sceneIndex));
-      d3.select("#progress").text(`${state.sceneIndex + 1} / ${scenes.length}`);
-      scenes[state.sceneIndex].render();
-    }
-
-
-    // Triggers
-    d3.select("#next-btn").on("click", () => {
-      state.sceneIndex += 1;
-      renderScene();
-    });
-    d3.select("#back-btn").on("click", () => {
-      state.sceneIndex -= 1;
-      renderScene();
-    });
-
-    d3.select("#year-slider").on("input", function() {
-      state.year = +this.value;
-      d3.select("#year-label").text(state.year);
-      //if (scenes[state.sceneIndex].name === "Category Breakdown") {
-        //renderScene();
-      //}
-    });
-
-    renderScene();
-
-    
-  }
-</script>
   
