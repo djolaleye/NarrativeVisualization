@@ -214,10 +214,10 @@
                     align: "middle",
                     wrap: 220
                   },
-                  data: { year: 2022, total: totalByYear.find(function(d) {return d.year === 2022})?.total || 0 },
+                  data: { year: 2020, total: totalByYear.find(function(d) {return d.year === 2020})?.total || 0 },
                   dx: 40,
                   dy: -60,
-                  color: "#003366",  // dark blue
+                  color: "#003366",
                   connector: { end: "arrow" }
                 }
               ];
@@ -301,7 +301,7 @@
                   .attr("height", function(d) {return y(0) - y(d.value)})
                   .attr("fill", "#1E90FF")
                   .on("mouseover", function(event, d) {
-                    updateAnnotation(d); 
+                    updateAnnotation(d, x, y); 
                     d3.select(this).attr("fill", "#003366");
                     })
                     .on("mouseout", function(event, d) {
@@ -316,7 +316,7 @@
                 .attr("class", "annotation-group");
               
               // Update annotation on hover
-              function updateAnnotation(categoryData) {
+              function updateAnnotation(categoryData, x, y) {
                 annotationGroup.selectAll("*").remove();
               
                 const annotationData = [
