@@ -301,7 +301,6 @@
                   .attr("height", function(d) {return y(0) - y(d.value)})
                   .attr("fill", "#1E90FF")
                   .on("mouseover", function(event, d) {
-                    d.category = d.category.toUpperCase();
                     updateAnnotation(d, x, y); 
                     d3.select(this).attr("fill", "#003366");
                     })
