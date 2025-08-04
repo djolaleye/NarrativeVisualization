@@ -127,6 +127,8 @@
                 .duration(1000)
                 .attr("opacity", 1);
 
+
+              // Annotation
               d3.select("#annotation").text("");
     
               svg.select(".annotation-group").remove();
@@ -168,6 +170,7 @@
             subtitle: "Total cases by year",
             showYear: false,
             render: () => {
+              // Text
               d3.select("#slide-title").text(scenes[1].title);
               d3.select("#slide-subtitle").text(scenes[1].subtitle);
 
@@ -182,7 +185,7 @@
               xAxisGroup.transition().duration(1000).call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
               yAxisGroup.transition().duration(1000).call(d3.axisLeft(yScale));;
 
-              
+              // Line chart
               const line = d3.line()
                 .x(function(d) {return xScale(d.year)})
                 .y(function(d) {return yScale(d.total)})
@@ -200,7 +203,8 @@
                 .duration(1000)
                 .attr("opacity", 1);
 
-               svg.select(".annotation-group").remove();
+              // Annotatin
+              svg.select(".annotation-group").remove();
               
               const annotationData = [
                 {
@@ -284,6 +288,28 @@
               
               yAxisGroup.transition().duration(500).call(d3.axisLeft(y));
 
+
+              // Bar chart
+              barGroup.selectAll("rect")
+                  .data(categories)
+                  .enter()
+                  .append("rect")
+                  .attr("class", "bar")
+                  .attr("x", function(d) {return x(d.category)})
+                  .attr("y", function(d) {return y(d.value)})
+                  .attr("width", x.bandwidth())
+                  .attr("height", function(d) {return y(0) - y(d.value)})
+                  .attr("fill", "#1E90FF")
+                  .on("mouseover", function(event, d) {
+                    updateAnnotation(d); 
+                    d3.select(this).attr("fill", "#003366");
+                    })
+                    .on("mouseout", function(event, d) {
+                      annotationGroup.selectAll("*").remove(); 
+                      d3.select(this).attr("fill", "#1E90FF");
+                    });
+
+              // Annotation
               svg.select(".annotation-group").remove();
 
               const annotationGroup = svg.append("g")
@@ -320,25 +346,6 @@
               
                 annotationGroup.call(hoverAnnotation);
               }
-              
-              barGroup.selectAll("rect")
-                  .data(categories)
-                  .enter()
-                  .append("rect")
-                  .attr("class", "bar")
-                  .attr("x", function(d) {return x(d.category)})
-                  .attr("y", function(d) {return y(d.value)})
-                  .attr("width", x.bandwidth())
-                  .attr("height", function(d) {return y(0) - y(d.value)})
-                  .attr("fill", "#1E90FF")
-                  .on("mouseover", function(event, d) {
-                    updateAnnotation(d); 
-                    d3.select(this).attr("fill", "#003366");
-                    })
-                    .on("mouseout", function(event, d) {
-                      annotationGroup.selectAll("*").remove(); 
-                      d3.select(this).attr("fill", "#1E90FF");
-                    });
             }
           }
         ];
