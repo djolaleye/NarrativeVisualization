@@ -95,39 +95,6 @@
               // Text
               d3.select("#slide-title").text(scenes[0].title);
               d3.select("#slide-subtitle").text(scenes[0].subtitle)
-              d3.select("#annotation").text("");
-    
-              svg.select(".annotation-group").remove();
-              
-              const annotationData = [
-                {
-                  note: {
-                    label: "A steady increase in crime is seen nationally over the decade.",
-                    title: "Trend",
-                    align: "middle",
-                    wrap: 200
-                  },
-                  data: { year: 2015, total: totalByYear.find(function(d) {return d.year === 2015})?.total || 0 },
-                  dx: 40,
-                  dy: -48,
-                  color: "#003366",  // dark blue
-                  connector: { end: "arrow" }
-                }
-              ];
-              
-              const makeAnnotations = d3.annotation()
-                .type(d3.annotationLabel)
-                .accessors({
-                  x: function(d) {return xScale(d.year)},
-                  y: function(d) {return yScale(d.total)}
-                })
-                .annotations(annotationData);
-              
-              svg.append("g")
-                .attr("class", "annotation-group")
-                .call(makeAnnotations);
-
-
               
               // Prepare data
               const pre2020 = totalByYear.filter(function(d) {return d.year <= 2020})
@@ -156,30 +123,22 @@
                 .transition()
                 .duration(1000)
                 .attr("opacity", 1);
-            }
-          },
-          
-          {
-            name: "National Trend Post Covid",
-            title: "Crime Trends in Bangladesh (2010–2025)",
-            subtitle: "Total cases by year",
-            showYear: false,
-            render: () => {
-              d3.select("#slide-title").text(scenes[1].title);
-              d3.select("#slide-subtitle").text(scenes[1].subtitle);
+
+              d3.select("#annotation").text("");
+    
               svg.select(".annotation-group").remove();
               
               const annotationData = [
                 {
                   note: {
-                    label: "Crime has consistently been on a decline after the pandemic",
-                    title: "Post-2020 Decline",
+                    label: "A steady increase in crime is seen nationally over the decade.",
+                    title: "Trend",
                     align: "middle",
-                    wrap: 220
+                    wrap: 200
                   },
-                  data: { year: 2022, total: totalByYear.find(function(d) {return d.year === 2022})?.total || 0 },
-                  dx: 40,
-                  dy: -60,
+                  data: { year: 2015, total: totalByYear.find(function(d) {return d.year === 2015})?.total || 0 },
+                  dx: 30,
+                  dy: -50,
                   color: "#003366",  // dark blue
                   connector: { end: "arrow" }
                 }
@@ -197,6 +156,17 @@
                 .attr("class", "annotation-group")
                 .call(makeAnnotations);
 
+            }
+          },
+          
+          {
+            name: "National Trend Post Covid",
+            title: "Crime Trends in Bangladesh (2010–2025)",
+            subtitle: "Total cases by year",
+            showYear: false,
+            render: () => {
+              d3.select("#slide-title").text(scenes[1].title);
+              d3.select("#slide-subtitle").text(scenes[1].subtitle);
 
               barGroup.style("display", "none");
               lineGroup.style("display", null).selectAll("*").remove();
@@ -227,6 +197,36 @@
                 .transition()
                 .duration(1000)
                 .attr("opacity", 1);
+
+               svg.select(".annotation-group").remove();
+              
+              const annotationData = [
+                {
+                  note: {
+                    label: "Crime has consistently been on a decline after the pandemic",
+                    title: "Post-2020 Decline",
+                    align: "middle",
+                    wrap: 220
+                  },
+                  data: { year: 2022, total: totalByYear.find(function(d) {return d.year === 2022})?.total || 0 },
+                  dx: 40,
+                  dy: -60,
+                  color: "#003366",  // dark blue
+                  connector: { end: "arrow" }
+                }
+              ];
+              
+              const makeAnnotations = d3.annotation()
+                .type(d3.annotationLabel)
+                .accessors({
+                  x: function(d) {return xScale(d.year)},
+                  y: function(d) {return yScale(d.total)}
+                })
+                .annotations(annotationData);
+              
+              svg.append("g")
+                .attr("class", "annotation-group")
+                .call(makeAnnotations);
             }
           },
           {
@@ -238,6 +238,50 @@
               // Text
               d3.select("#slide-title").text(scenes[2].title);
               d3.select("#slide-subtitle").text(scenes[2].subtitle);
+              
+              lineGroup.style("display", "none");
+              barGroup.style("display", null).selectAll("*").remove();
+              
+              // Prepare data
+              const yearData = data.filter(function(d) { return d.year === state.year});
+              const totals = {
+                 dacoity: d3.sum(yearData, function(d) {return  d.dacoity}),
+                 robbery: d3.sum(yearData, function(d) {return  d.robbery}),
+                 murder: d3.sum(yearData, function(d) {return  d.murder}),
+                 speedy: d3.sum(yearData, function(d) {return  d.speedy}),
+                 riot: d3.sum(yearData, function(d) {return  d.riot}),
+                 woman_child: d3.sum(yearData, function(d) {return  d.woman_child}),
+                 kidnapping: d3.sum(yearData, function(d) {return  d.kidnapping}),
+                 police_assault: d3.sum(yearData, function(d) {return  d.police_assault}),
+                 burglary: d3.sum(yearData, function(d) {return  d.burglary}),
+                 theft: d3.sum(yearData, function(d) {return  d.theft}),
+                 other: d3.sum(yearData, function(d) {return  d.other}),
+                 arms: d3.sum(yearData, function(d) {return  d.arms}),
+                 explosive: d3.sum(yearData, function(d) {return  d.explosive}),
+                 narcotics: d3.sum(yearData, function(d) {return  d.narcotics}),
+                 smuggling: d3.sum(yearData, function(d) {return  d.smuggling})
+               };
+
+              const categories = Object.entries(totals).map(([key, value]) => ({
+                category: key.replace(/_/g, ' ').toUpperCase(),
+                value}));
+
+
+              const x = d3.scaleBand()
+                .domain(categories.map(function(d) {return d.category}))
+                .range([margin.left, width + margin.left])
+                .padding(0.1);
+              
+              const y = d3.scaleLinear()
+                .domain([0, d3.max(categories, function(d) {return d.value}) * 1.1])
+                .range([height + margin.top, margin.top]);
+
+              
+              xAxisGroup.transition().duration(500).call(d3.axisBottom(x))
+              .selectAll("text").attr("transform", "rotate(-45)").style("text-anchor", "end");
+              
+              yAxisGroup.transition().duration(500).call(d3.axisLeft(y));
+
               svg.select(".annotation-group").remove();
 
               const annotationGroup = svg.append("g")
@@ -274,51 +318,6 @@
               
                 annotationGroup.call(hoverAnnotation);
               }
-
-              
-              lineGroup.style("display", "none");
-              barGroup.style("display", null).selectAll("*").remove();
-              
-              // Prepare data
-              const yearData = data.filter(function(d) { return d.year === state.year});
-              const totals = {
-                 dacoity: d3.sum(yearData, function(d) {return  d.dacoity}),
-                 robbery: d3.sum(yearData, function(d) {return  d.robbery}),
-                 murder: d3.sum(yearData, function(d) {return  d.murder}),
-                 speedy: d3.sum(yearData, function(d) {return  d.speedy}),
-                 riot: d3.sum(yearData, function(d) {return  d.riot}),
-                 woman_child: d3.sum(yearData, function(d) {return  d.woman_child}),
-                 kidnapping: d3.sum(yearData, function(d) {return  d.kidnapping}),
-                 police_assault: d3.sum(yearData, function(d) {return  d.police_assault}),
-                 burglary: d3.sum(yearData, function(d) {return  d.burglary}),
-                 theft: d3.sum(yearData, function(d) {return  d.theft}),
-                 other: d3.sum(yearData, function(d) {return  d.other}),
-                 arms: d3.sum(yearData, function(d) {return  d.arms}),
-                 explosive: d3.sum(yearData, function(d) {return  d.explosive}),
-                 narcotics: d3.sum(yearData, function(d) {return  d.narcotics}),
-                 smuggling: d3.sum(yearData, function(d) {return  d.smuggling})
-               };
-
-              const categories = Object.entries(totals).map(([key, value]) => ({
-                category: key.replace(/_/g, ' ').toUpperCase(),
-                value}));
-
-              
-
-              const x = d3.scaleBand()
-                .domain(categories.map(function(d) {return d.category}))
-                .range([margin.left, width + margin.left])
-                .padding(0.1);
-              
-              const y = d3.scaleLinear()
-                .domain([0, d3.max(categories, function(d) {return d.value}) * 1.1])
-                .range([height + margin.top, margin.top]);
-
-              
-              xAxisGroup.transition().duration(500).call(d3.axisBottom(x))
-              .selectAll("text").attr("transform", "rotate(-45)").style("text-anchor", "end");
-              
-              yAxisGroup.transition().duration(500).call(d3.axisLeft(y));
               
               barGroup.selectAll("rect")
                   .data(categories)
@@ -331,7 +330,7 @@
                   .attr("height", function(d) {return y(0) - y(d.value)})
                   .attr("fill", "#1E90FF")
                   .on("mouseover", function(event, d) {
-                    updateAnnotation(d); /
+                    updateAnnotation(d); 
                     d3.select(this).attr("fill", "#003366");
                     })
                     .on("mouseout", function(event, d) {
@@ -339,6 +338,7 @@
                       d3.select(this).attr("fill", "#1E90FF");
                     });
             }
+          }
         ];
     
     
